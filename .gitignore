@@ -1,2 +1,5 @@
 *.jpg
 *.MOV
+*kml
+
+Pipfile.lock

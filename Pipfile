@@ -11,6 +11,8 @@ pygame = "*"
 mypy = "*"
 icecream = "*"
 pillow = "*"
+matplotlib ="*"
+pyqt5 ="*"
 
 [dev-packages]
 

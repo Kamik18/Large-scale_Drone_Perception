@@ -57,7 +57,7 @@ Revision
 
 # imports
 from math import pi
-from transverse_mercator import tranmerc
+from VizualiseFlight.transverse_mercator import tranmerc
 
 # WGS-84 defines
 wgs84_a = 6378137.0 # WGS84 semi-major axis of ellipsoid [m]

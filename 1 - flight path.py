@@ -1,5 +1,75 @@
 # Import the necessary packages
+import matplotlib
+matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
+import numpy as np
+from VizualiseFlight.utm import utmconv
+from VizualiseFlight.exportkml import kmlclass
+
+def EriksFunction(fileName:str):
+    ## Variables for plotting ##
+    showPlot = False
+    longitudeData = []
+    latitudeData = []
+    altitudeData = []
+
+    # open the imu data file
+    f = open (fileName, "r",encoding="utf8", errors='ignore')
+
+    # initialize variables
+    count = 0
+
+    # looping through file
+    for line in f:
+        count += 1
+
+        # Skip the first iterataion with header
+        if count == 1:
+            continue        
+
+        # Split the line into CSV formatted data
+        csv = line.split(',')
+        print(csv[2])
+        if (csv[2] != "Recording"):
+            continue
+        
+        
+        # Extract Latitude, Longitude and Altitude
+        long = float(csv[13])
+        lat = float(csv[12])
+        alt = float(csv[15])
+        
+        # In order to show a plot use this function to append your value to a list:
+        if(abs(lat) > 0.0001 and abs(long) > 0.0001):
+            latitudeData.append(lat)
+            longitudeData.append(long)
+            altitudeData.append(alt)
+
+        ######################################################
+
+    # closing the file	
+    f.close()
+
+    n = np.zeros(len(latitudeData))
+    e = np.zeros(len(latitudeData))
+    uc = utmconv()
+
+    for i in range (len(latitudeData)):
+        (hemisphere, zone, letter, e[i], n[i]) = uc.geodetic_to_utm (latitudeData[i],longitudeData[i])
+
+    kml = kmlclass()
+    kml.begin('FlightPath.kml', 'Test Flight for LSDP miniproject 2', 'Plot Positional Flight Data', 0.7)
+    # color: red,green,blue,cyan,yellow,grey,red_poly,yellow_poly,green_poly
+    # altitude: use 'absolute' or 'relativeToGround'
+    kml.trksegbegin ('', '', 'red', 'relative to ground') 
+    for i in range(len(latitudeData)):
+        kml.pt(latitudeData[i], longitudeData[i], altitudeData[i])	
+    kml.trksegend()
+    kml.end()
+
+    return list(e), list(n), altitudeData
+
+
 
 # Create a 3d plot of the flight path
 def plot_flight_path(utm_eastings:list, utm_northings:list, utm_altitudes:list) -> None:
@@ -10,7 +80,6 @@ def plot_flight_path(utm_eastings:list, utm_northings:list, utm_altitudes:list) 
         utm_northings (list): List of UTM northings.
         utm_altitudes (list): List of UTM altitudes.
     """
-
     assert type(utm_eastings) == list and type(utm_northings) == list and type(utm_altitudes) == list
     assert len(utm_eastings) > 0 and len(utm_northings) > 0 and len(utm_altitudes) > 0
     assert len(utm_eastings) == len(utm_northings) == len(utm_altitudes)
@@ -34,10 +103,9 @@ if __name__ == '__main__':
         ing of the first video. Convert the GPS coordinates
         to UTM and visualize the flight path.
     """
-    # TODO code here 
-    utm_eastings:list = []
-    utm_northings:list = []
-    utm_altitudes:list = []
+    
+    # Read the logfile
+    utm_eastings, utm_northings, utm_altitudes =  EriksFunction("dataset/DJIFlightRecord_2021-03-18_[13-04-51]-TxtLogToCsv.csv")
 
     # Plot the flight path
     plot_flight_path(utm_eastings, utm_northings, utm_altitudes)
@@ -55,3 +123,6 @@ if __name__ == '__main__':
 
     # TODO code here 
     pass
+
+
+# pipenv run python3 1\ -\ flight\ path.py 
