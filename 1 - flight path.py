@@ -9,9 +9,9 @@ from VizualiseFlight.exportkml import kmlclass
 def EriksFunction(fileName:str):
     ## Variables for plotting ##
     showPlot = False
-    longitudeData = []
-    latitudeData = []
-    altitudeData = []
+    longitudeData:list = []
+    latitudeData:list = []
+    altitudeData:list = []
 
     # open the imu data file
     f = open (fileName, "r",encoding="utf8", errors='ignore')
@@ -29,11 +29,11 @@ def EriksFunction(fileName:str):
 
         # Split the line into CSV formatted data
         csv = line.split(',')
-        print(csv[2])
-        if (csv[2] != "Recording"):
+        if (csv[2] == "Stop"):
+            break
+        elif (csv[2] != "Recording" ):
             continue
-        
-        
+                
         # Extract Latitude, Longitude and Altitude
         long = float(csv[13])
         lat = float(csv[12])
@@ -83,15 +83,26 @@ def plot_flight_path(utm_eastings:list, utm_northings:list, utm_altitudes:list) 
     assert type(utm_eastings) == list and type(utm_northings) == list and type(utm_altitudes) == list
     assert len(utm_eastings) > 0 and len(utm_northings) > 0 and len(utm_altitudes) > 0
     assert len(utm_eastings) == len(utm_northings) == len(utm_altitudes)
-    
-    fig = plt.figure()
+
+    fig = plt.figure()    
     ax = fig.add_subplot(111, projection='3d')
     ax.plot(utm_eastings, utm_northings, utm_altitudes)
-    ax.set_xlabel('UTM Eastings')
-    ax.set_ylabel('UTM Northings')
-    ax.set_zlabel('UTM Altitudes')
+    ax.axis('equal')
+    ax.set_xlabel('UTM Eastings [m]')
+    ax.set_ylabel('UTM Northings [m]')
+    ax.set_zlabel('UTM Altitudes [m]')
     ax.set_title('Flight Path')
-    plt.show()
+    plt.savefig('output/flight_path_3d.pdf', format='pdf', bbox_inches='tight')
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1 ,1)
+    ax.plot(utm_eastings, utm_northings)
+    ax.axis('equal')
+    ax.set_xlabel('UTM Eastings [m]')
+    ax.set_ylabel('UTM Northings [m]')
+    ax.set_title('Flight Path')
+    plt.savefig('output/flight_path_2d.pdf', format='pdf', bbox_inches='tight')
+
 
 # Call the main function
 if __name__ == '__main__':
