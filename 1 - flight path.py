@@ -92,7 +92,7 @@ def plot_flight_path(utm_eastings:list, utm_northings:list, utm_altitudes:list) 
     ax.set_ylabel('UTM Northings [m]')
     ax.set_zlabel('UTM Altitudes [m]')
     ax.set_title('Flight Path')
-    plt.savefig('output/flight_path_3d.svg', format='svg')
+    plt.savefig('output/flight_path_3d.pdf', format='pdf', bbox_inches='tight')
 
     fig = plt.figure()
     ax = fig.add_subplot(1, 1 ,1)
@@ -101,7 +101,8 @@ def plot_flight_path(utm_eastings:list, utm_northings:list, utm_altitudes:list) 
     ax.set_xlabel('UTM Eastings [m]')
     ax.set_ylabel('UTM Northings [m]')
     ax.set_title('Flight Path')
-    plt.savefig('output/flight_path_2d.svg', format='svg')
+    plt.savefig('output/flight_path_2d.pdf', format='pdf', bbox_inches='tight')
+
 
 # Call the main function
 if __name__ == '__main__':
