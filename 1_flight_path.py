@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from VizualiseFlight.utm import utmconv
 from VizualiseFlight.exportkml import kmlclass
+from FrameIterator import *
+
 
 def EriksFunction(fileName:str):
     ## Variables for plotting ##
@@ -121,6 +123,10 @@ if __name__ == '__main__':
     # Plot the flight path
     plot_flight_path(utm_eastings, utm_northings, utm_altitudes)
 
+    # Extract the frames from the video
+    fi = FrameIterator("/home/erik/Documents/SDU/Courses/LSDP/mini_project_1/Large-scale_Drone_Perception/input/DJI_0199.MOV")
+    fi.extract_images()
+
 
     """
     Task
@@ -131,6 +137,8 @@ if __name__ == '__main__':
         clude the first 1200 frames of the video. These saved
         frames will be used in the rest of the project.
     """
+
+    
 
     # TODO code here 
     pass

@@ -1,5 +1,7 @@
 *.jpg
 *.MOV
 *kml
+*.pdf
+*.png
 
 Pipfile.lock
