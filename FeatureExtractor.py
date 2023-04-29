@@ -12,7 +12,9 @@ class FeatureExtractor():
 
         self.camera_matrix = camera_matrix
         
-        print(self.camera_matrix)
+        self.__extract_features_and_estimate_pose()
+
+        self.__calculate_epipolar_line()
 
 
     def rmOutliersFundamentalMatrix(self,pts1,pts2,matches,match_indices):
@@ -78,7 +80,7 @@ class FeatureExtractor():
 
         return [R1,R2,t1,t2]
 
-    def extract_features(self): # possibly rename to get3DPoints
+    def __extract_features_and_estimate_pose(self): # possibly rename to get3DPoints
 
         # create sift
         sift = cv2.SIFT_create()
@@ -95,17 +97,17 @@ class FeatureExtractor():
         matched_image_total = cv2.drawMatches(self.img1,kp1,self.img2,kp2,matches,None,flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
 
         # get corresponding points 
-        pts1,pts2,match_indices = self.getPointsFromMatches(matches,kp1,kp2)
+        self.pts1,self.pts2,match_indices = self.getPointsFromMatches(matches,kp1,kp2)
 
         # remove outlier matched with fundamental matrix
-        F,goodF = self.rmOutliersFundamentalMatrix(pts1,pts2,matches,match_indices)
+        self.F,goodF = self.rmOutliersFundamentalMatrix(self.pts1,self.pts2,matches,match_indices)
 
         # draw good matches F
         matched_image_goodF = cv2.drawMatches(self.img1,kp1,self.img2,kp2,goodF ,None,flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
 
         ''' NOTE what camera matrix are we supposed to use? '''
 
-        pts1E,pts2E,E,goodE = self.rmOutliersEssentialMatrix(self.camera_matrix,pts1,pts2,matches,match_indices)
+        self.pts1E,self.pts2E,E,goodE = self.rmOutliersEssentialMatrix(self.camera_matrix,self.pts1,self.pts2,matches,match_indices)
 
         # draw good matches E
         matched_image_goodE = cv2.drawMatches(self.img1,kp1,self.img2,kp2,goodE ,None,flags=2)
@@ -117,17 +119,63 @@ class FeatureExtractor():
         
         R1,R2,t1,t2 = self.decompose_essential_matrix(E)
         
-        _,R,t,mask=cv2.recoverPose(E,pts1,pts2,self.camera_matrix)
+        _,R,t,mask=cv2.recoverPose(E,self.pts1E,self.pts2E,self.camera_matrix)
 
         projectionMatrix = self.camera_matrix @ np.hstack((R,t))
         nullProjectionMatrix = self.camera_matrix @ np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0]])
 
-        points3D = cv2.triangulatePoints(projectionMatrix,nullProjectionMatrix,pts1.T,pts2.T)
+        self.points3D = cv2.triangulatePoints(projectionMatrix,nullProjectionMatrix,self.pts1.T,self.pts2.T)
 
-        print(points3D)
 
-        return points3D
-        #plt.figure()
-        #plt.scatter(points3D)
-        #plt.show()
+        self.relative_pose = np.eye(4)
+        self.relative_pose[:3, :3] = R
+        self.relative_pose[:3, 3] = t.T[0]
+
+    def get_points3D(self):
+        return self.points3D
+    
+    def get_relative_pose(self):
+        return self.relative_pose
+
+    def __calculate_epipolar_line(self, point_type = 'None'):
+
+        # get points depending on point type
+        if point_type == 'E':
+            self.ptsL = self.pts1E
+            self.ptsR = self.pts2E
+        else:
+            self.ptsL = self.pts1
+            self.ptsR = self.pts2
+
+        # find epilines corresponding to points in right image
+        self.epilinesR = cv2.computeCorrespondEpilines(self.ptsR.reshape(-1, 1, 2), 2, self.F)
+        #epilinesR = epilinesR.reshape(-1, 3)
+
+        # find epilines corresponding to points in left image
+        self.epilinesL = cv2.computeCorrespondEpilines(self.ptsL.reshape(-1, 1, 2), 1, self.F)
+        #epilinesL = epilinesL.reshape(-1, 3)
+
+    def get_distance_to_epipolars(self):
+            # create empty lists
+            dL = []
+            dR = []
+            # calculate distance to epipolar lines for each point left and right
+            for line in self.epilinesL:
+                a, b, c = line[0]
+                for pt in self.ptsR:
+                    x, y = pt
+                    dL.append(abs(a*x + b*y + c) / np.sqrt(a*a + b*b))
+
+            for line in self.epilinesR:
+                a, b, c = line[0]
+                for pt in self.ptsL:
+                    x, y = pt
+                    dR.append(abs(a*x + b*y + c) / np.sqrt(a*a + b*b))
+
+            return [dL,dR]
+
+                
+
+        
+        
 
