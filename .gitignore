@@ -1,4 +1,3 @@
 *kml
 *.MOV
-output/disc/*
-Pipfile.lock
+output/disc/*.jpg
