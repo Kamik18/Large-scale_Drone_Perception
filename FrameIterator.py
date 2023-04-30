@@ -8,9 +8,7 @@ class FrameIterator():
     
     def frame_generator(self):
         # Define a generator that yields frames from the video
-        count = -1
         while(1):
-            count += 1
             ret, frame = self.cap.read()
             if ret is not True:
                 break
@@ -32,11 +30,16 @@ class FrameIterator():
                 cv2.imwrite("../output/ex00_stillimage.png", frame)
 
     def extract_images(self,frac=100):
-        count = -1
+        # Empty the output folder
+        import shutil, os
+        shutil.rmtree("output/disc")
+        os.mkdir("output/disc")
+
+        count:int = 0
+        file:int = 0
         for frame in self.frame_generator():
-            count += 1
-            # save every 100th frame and disregard the first 1200 frames
+            # save every n-th frame and disregard the first 1200 frames
             if count % frac == 0 and count > 1200:
-                name = "./output/frame%d.jpg" % (count/frac) 
-                cv2.imwrite(name, frame)
-                #print(name,type(frame))
+                cv2.imwrite(f"output/disc/frame{file:03d}.jpg", frame)
+                file += 1
+            count += 1

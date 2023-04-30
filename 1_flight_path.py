@@ -116,17 +116,11 @@ if __name__ == '__main__':
         ing of the first video. Convert the GPS coordinates
         to UTM and visualize the flight path.
     """
-    
     # Read the logfile
     utm_eastings, utm_northings, utm_altitudes =  EriksFunction("dataset/DJIFlightRecord_2021-03-18_[13-04-51]-TxtLogToCsv.csv")
-
+    
     # Plot the flight path
     plot_flight_path(utm_eastings, utm_northings, utm_altitudes)
-
-    # Extract the frames from the video
-    fi = FrameIterator("/home/erik/Documents/SDU/Courses/LSDP/mini_project_1/Large-scale_Drone_Perception/input/DJI_0199.MOV")
-    fi.extract_images()
-
 
     """
     Task
@@ -137,11 +131,8 @@ if __name__ == '__main__':
         clude the first 1200 frames of the video. These saved
         frames will be used in the rest of the project.
     """
+    # Extract the frames from the video
+    fi = FrameIterator("input/DJI_0199.MOV")
+    fi.extract_images(frac=50)
 
-    
-
-    # TODO code here 
-    pass
-
-
-# pipenv run python3 1\ -\ flight\ path.py 
+# pipenv run python3 1_flight_path.py 

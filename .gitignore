@@ -1,7 +1,4 @@
-*.jpg
-*.MOV
 *kml
-*.pdf
-*.png
-
+*.MOV
+output/disc/*
 Pipfile.lock
