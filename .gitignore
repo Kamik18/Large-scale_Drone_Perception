@@ -1,3 +1,5 @@
 *kml
 *.MOV
+*.jpg
+*.png
 output/disc/*.jpg

@@ -110,20 +110,20 @@ class FeatureExtractor():
         self.pts1,self.pts2,match_indices = self.getPointsFromMatches(matches,kp1,kp2)
 
         # remove outlier matched with fundamental matrix
-        self.F,goodF = self.rmOutliersFundamentalMatrix(self.pts1,self.pts2,matches,match_indices)
+        self.F,self.goodF = self.rmOutliersFundamentalMatrix(self.pts1,self.pts2,matches,match_indices)
 
         if self.save_images:
             # draw good matches F
-            matched_image_goodF = cv2.drawMatches(self.img1,kp1,self.img2,kp2,goodF ,None,flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+            matched_image_goodF = cv2.drawMatches(self.img1,kp1,self.img2,kp2,self.goodF ,None,flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
             cv2.imwrite(f"./output/feature/{self.DETECTOR_TYPE}/rmOutliersF.png", matched_image_goodF)
 
         ''' NOTE what camera matrix are we supposed to use? '''
 
-        self.pts1E,self.pts2E,E,goodE = self.rmOutliersEssentialMatrix(self.camera_matrix,self.pts1,self.pts2,matches,match_indices)
+        self.pts1E,self.pts2E,E,self.goodE = self.rmOutliersEssentialMatrix(self.camera_matrix,self.pts1,self.pts2,matches,match_indices)
 
         if self.save_images:
             # draw good matches E
-            matched_image_goodE = cv2.drawMatches(self.img1,kp1,self.img2,kp2,goodE ,None,flags=2)
+            matched_image_goodE = cv2.drawMatches(self.img1,kp1,self.img2,kp2,self.goodE ,None,flags=2)
             cv2.imwrite(f"./output/feature/{self.DETECTOR_TYPE}/rmOutliersE.png", matched_image_goodE)
         
         
@@ -183,6 +183,10 @@ class FeatureExtractor():
                     dR.append(abs(a*x + b*y + c) / np.sqrt(a*a + b*b))
 
             return [dL,dR]
+
+
+    def get_matches_E(self):
+        return self.goodE
 
                 
 

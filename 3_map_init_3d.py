@@ -51,6 +51,8 @@ def main():
     
         print(f"Processing images {i} and {i+1}")
         featureExtractor = FeatureExtractor(files[i], files[i+1], camera_matrix)
+        featureExtractor.get_points3D()
+        
 
         counter += 1
 
