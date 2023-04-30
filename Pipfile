@@ -13,6 +13,7 @@ icecream = "*"
 pillow = "*"
 matplotlib ="*"
 pyqt5 ="*"
+numpy = "*"
 
 [dev-packages]
 
