@@ -1,7 +1,10 @@
 import cv2
 import numpy as np
 
+
 class FeatureExtractor():
+    DETECTOR_TYPE: str = "SIFT" # SIFT, ORB
+    
     def __init__(self,input_path_1,input_path_2,camera_matrix, save_images: bool = False):
 
         self.img1 = cv2.imread(input_path_1)
@@ -82,13 +85,17 @@ class FeatureExtractor():
         return [R1,R2,t1,t2]
 
     def __extract_features_and_estimate_pose(self): # possibly rename to get3DPoints
-
         # create sift
-        sift = cv2.SIFT_create()
+        if self.DETECTOR_TYPE == "SIFT":
+            detector = cv2.SIFT_create()
+        elif self.DETECTOR_TYPE == "ORB":
+            detector = cv2.ORB_create()
+        else:
+            raise Exception("Invalid detector type")
 
         # detect keypoints and compute descriptors
-        kp1,des1 = sift.detectAndCompute(self.gray1,mask=None)
-        kp2,des2 = sift.detectAndCompute(self.gray2,mask=None)
+        kp1,des1 = detector.detectAndCompute(self.gray1,mask=None)
+        kp2,des2 = detector.detectAndCompute(self.gray2,mask=None)
 
         # create BruteForce Matcher
         bf = cv2.BFMatcher_create(cv2.NORM_L2, crossCheck=True)
@@ -97,7 +104,7 @@ class FeatureExtractor():
         if self.save_images:
             # draw all matches
             matched_image_total = cv2.drawMatches(self.img1,kp1,self.img2,kp2,matches,None,flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-            cv2.imwrite("./output/feature/matched.png", matched_image_total)
+            cv2.imwrite(f"./output/feature/{self.DETECTOR_TYPE}/matched.png", matched_image_total)
 
         # get corresponding points 
         self.pts1,self.pts2,match_indices = self.getPointsFromMatches(matches,kp1,kp2)
@@ -108,7 +115,7 @@ class FeatureExtractor():
         if self.save_images:
             # draw good matches F
             matched_image_goodF = cv2.drawMatches(self.img1,kp1,self.img2,kp2,goodF ,None,flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-            cv2.imwrite("./output/feature/rmOutliersF.png", matched_image_goodF)
+            cv2.imwrite(f"./output/feature/{self.DETECTOR_TYPE}/rmOutliersF.png", matched_image_goodF)
 
         ''' NOTE what camera matrix are we supposed to use? '''
 
@@ -117,7 +124,7 @@ class FeatureExtractor():
         if self.save_images:
             # draw good matches E
             matched_image_goodE = cv2.drawMatches(self.img1,kp1,self.img2,kp2,goodE ,None,flags=2)
-            cv2.imwrite("./output/feature/rmOutliersE.png", matched_image_goodE)
+            cv2.imwrite(f"./output/feature/{self.DETECTOR_TYPE}/rmOutliersE.png", matched_image_goodE)
         
         
         R1,R2,t1,t2 = self.decompose_essential_matrix(E)

@@ -22,7 +22,12 @@ def main():
     # Sort the files by name
     files.sort()
 
-    featureExtractor = FeatureExtractor(files[0], files[1], camera_matrix, save_images=False)
+    # Log execution time
+    import time
+    start_time = time.time()
+    featureExtractor = FeatureExtractor(files[0], files[1], camera_matrix, save_images=True)
+    print(f"--- {time.time() - start_time} seconds ---")
+    
     relative_pose_between_2_images = featureExtractor.get_relative_pose()
     print(f"Relative pose between the first two images: \n{relative_pose_between_2_images}")
 
@@ -37,8 +42,8 @@ def main():
     plt.figure(figsize=(20,10))
     plt.hist(dL, bins=100, label='Left', color='blue', edgecolor='black')
     plt.title("Epipolar distances for the left image")
-    plt.savefig("output/feature/epipolar_distances_left.png")
-
+    plt.savefig(F"output/feature/{FeatureExtractor.DETECTOR_TYPE}/epipolar_distances_left.png")
+    
     '''
     Just a test below. 
     TODO    -   Verify that right points need to be compared with left epipolar lines and vice versa

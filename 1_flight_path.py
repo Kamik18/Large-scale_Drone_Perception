@@ -86,9 +86,23 @@ def plot_flight_path(utm_eastings:list, utm_northings:list, utm_altitudes:list) 
     assert len(utm_eastings) > 0 and len(utm_northings) > 0 and len(utm_altitudes) > 0
     assert len(utm_eastings) == len(utm_northings) == len(utm_altitudes)
 
+    TOTAL_FRAMES:int = 3294
+    DISCARD_FRAMES:int = 1200
+    INTERSECTION:int = int(len(utm_northings) * (DISCARD_FRAMES / TOTAL_FRAMES))
+
+    # Create a 3d plot
     fig = plt.figure()    
     ax = fig.add_subplot(111, projection='3d')
-    ax.plot(utm_eastings, utm_northings, utm_altitudes)
+    # Plot the first 1200 frames of the flight path in red
+    ax.plot(utm_eastings[:INTERSECTION + 1],
+            utm_northings[:INTERSECTION + 1],
+            utm_altitudes[:INTERSECTION + 1],
+            color='red')
+    # Plot the last 2094 frames of the flight path in blue
+    ax.plot(utm_eastings[INTERSECTION:], 
+            utm_northings[INTERSECTION:], 
+            utm_altitudes[INTERSECTION:], 
+            color='blue')
     ax.axis('equal')
     ax.set_xlabel('UTM Eastings [m]')
     ax.set_ylabel('UTM Northings [m]')
@@ -96,9 +110,17 @@ def plot_flight_path(utm_eastings:list, utm_northings:list, utm_altitudes:list) 
     ax.set_title('Flight Path')
     plt.savefig('output/flight_path_3d.pdf', format='pdf', bbox_inches='tight')
 
+    # Create a 2d plot
     fig = plt.figure()
     ax = fig.add_subplot(1, 1 ,1)
-    ax.plot(utm_eastings, utm_northings)
+    # Plot the first 1200 frames of the flight path in red
+    ax.plot(utm_eastings[:INTERSECTION + 1],
+            utm_northings[:INTERSECTION + 1],
+            color='red')
+    # Plot the last 2094 frames of the flight path in blue
+    ax.plot(utm_eastings[INTERSECTION:],
+            utm_northings[INTERSECTION:], 
+            color='blue')
     ax.axis('equal')
     ax.set_xlabel('UTM Eastings [m]')
     ax.set_ylabel('UTM Northings [m]')
