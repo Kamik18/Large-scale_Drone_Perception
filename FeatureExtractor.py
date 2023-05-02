@@ -105,6 +105,7 @@ class FeatureExtractor():
             # draw all matches
             matched_image_total = cv2.drawMatches(self.img1,kp1,self.img2,kp2,matches,None,flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
             cv2.imwrite(f"./output/feature/{self.DETECTOR_TYPE}/matched.png", matched_image_total)
+            print(f"Number of matches: {len(matches)}")
 
         # get corresponding points 
         self.pts1,self.pts2,match_indices = self.getPointsFromMatches(matches,kp1,kp2)
@@ -116,6 +117,7 @@ class FeatureExtractor():
             # draw good matches F
             matched_image_goodF = cv2.drawMatches(self.img1,kp1,self.img2,kp2,goodF ,None,flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
             cv2.imwrite(f"./output/feature/{self.DETECTOR_TYPE}/rmOutliersF.png", matched_image_goodF)
+            print(f"Number of good matches F: {len(goodF)}")
 
         ''' NOTE what camera matrix are we supposed to use? '''
 
@@ -125,6 +127,7 @@ class FeatureExtractor():
             # draw good matches E
             matched_image_goodE = cv2.drawMatches(self.img1,kp1,self.img2,kp2,goodE ,None,flags=2)
             cv2.imwrite(f"./output/feature/{self.DETECTOR_TYPE}/rmOutliersE.png", matched_image_goodE)
+            print(f"Number of good matches E: {len(goodE)}")
         
         
         R1,R2,t1,t2 = self.decompose_essential_matrix(E)

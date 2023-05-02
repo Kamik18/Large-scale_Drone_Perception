@@ -89,7 +89,7 @@ def plot_flight_path(utm_eastings:list, utm_northings:list, utm_altitudes:list) 
     TOTAL_FRAMES:int = 3294
     DISCARD_FRAMES:int = 1200
     INTERSECTION:int = int(len(utm_northings) * (DISCARD_FRAMES / TOTAL_FRAMES))
-
+    
     # Create a 3d plot
     fig = plt.figure()    
     ax = fig.add_subplot(111, projection='3d')
@@ -109,6 +109,7 @@ def plot_flight_path(utm_eastings:list, utm_northings:list, utm_altitudes:list) 
     ax.set_zlabel('UTM Altitudes [m]')
     ax.set_title('Flight Path')
     plt.savefig('output/flight_path_3d.pdf', format='pdf', bbox_inches='tight')
+    plt.savefig('output/flight_path_3d.png', format='png', bbox_inches='tight')
 
     # Create a 2d plot
     fig = plt.figure()
@@ -126,6 +127,7 @@ def plot_flight_path(utm_eastings:list, utm_northings:list, utm_altitudes:list) 
     ax.set_ylabel('UTM Northings [m]')
     ax.set_title('Flight Path')
     plt.savefig('output/flight_path_2d.pdf', format='pdf', bbox_inches='tight')
+    plt.savefig('output/flight_path_2d.png', format='png', bbox_inches='tight')
 
 
 # Call the main function
