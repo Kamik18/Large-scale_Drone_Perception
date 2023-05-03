@@ -122,7 +122,7 @@ class TrackedCamera():
         return ret
 
     def __repr__(self):
-        return repr("Camera %d [%s] %s (%f %f %f) %s" % (self.camera_id,
+        return repr("Camera id: %d, frame id: [%s], fixed: %s, T: (%f %f %f), R: %s" % (self.camera_id,
             self.frame_id, 
             self.fixed,
             self.t[0],
@@ -332,6 +332,12 @@ class Map():
     def add_camera(self, camera: TrackedCamera) -> TrackedCamera:
         camera.camera_id = self.increment_id()
         self.cameras.append(camera)
+
+        # Store the camera in a file
+        with open("cameras.txt", "a") as f:
+            # Append the camera to the file
+            f.write(camera.__repr__() + "\n")
+
         return camera
 
     def add_point(self, point: TrackedPoint) -> TrackedPoint:
@@ -621,7 +627,8 @@ class Map():
     def limit_number_of_camera_in_map(self, max_camera_number):
         print("limit_number_of_camera_in_map")
         for camera in self.cameras:
-            print(camera)
+            #print(camera)
+            pass
         if len(self.cameras) > max_camera_number:
             print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
             print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
@@ -642,12 +649,14 @@ class Map():
 
 
 class VisualSlam:
-    def __init__(self, inputdirectory, feature = "ORB"):
+    def __init__(self, inputdirectory, feature = "SIFT"):
         self.input_directory = inputdirectory
 
         # Use ORB features
-        #self.detector = cv2.ORB_create()
-        self.detector = cv2.SIFT_create()
+        if feature == "ORB":
+            self.detector = cv2.ORB_create()
+        elif feature == "SIFT":
+            self.detector = cv2.SIFT_create()
         #self.bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
         self.bf = cv2.BFMatcher(cv2.NORM_L2, crossCheck=True)
         
@@ -969,7 +978,7 @@ class VisualSlam:
         self.freeze_nonlast_cameras()
         self.print_camera_details()
 
-        self.map.limit_number_of_camera_in_map(18)
+        self.map.limit_number_of_camera_in_map(180)
         cv2.waitKey(10)
 
 
@@ -1029,8 +1038,13 @@ class VisualSlam:
                 self.unfreeze_cameras(5)
                 self.print_camera_details()
                 self.map.optimize_map()
-                self.freeze_nonlast_cameras()
+                self.freeze_nonlast_camerasbb()
                 self.print_camera_details()
+
+        print("Finished processing all frames")
+        self.print_camera_details()
+
+        print(f"Flight path: {self.map.flight_path}")
 
         while True:
             k = cv2.waitKey(100)
